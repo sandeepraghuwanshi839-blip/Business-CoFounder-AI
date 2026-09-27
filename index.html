@@ -1,0 +1,46 @@
+<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Business Co-Founder AI FINAL</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f5f8;font-family:system-ui;color:#151515}.wrap{max-width:1150px;margin:auto;padding:14px}.hero{background:#171717;color:#fff;border-radius:20px;padding:20px}.hero h1{margin:0 0 5px}.nav{display:flex;gap:7px;overflow:auto;margin:12px 0}.nav button{white-space:nowrap;width:auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}.card{background:#fff;border-radius:16px;padding:15px;box-shadow:0 3px 14px #0000000d}input,select,button{width:100%;padding:11px;margin:5px 0;border:1px solid #ddd;border-radius:10px}button{background:#171717;color:#fff;font-weight:700}.out{background:#f0f1f4;padding:11px;border-radius:10px;margin-top:8px;white-space:pre-wrap}.prod{display:flex;gap:10px;border-top:1px solid #eee;padding:10px 0}.prod img{width:70px;height:70px;object-fit:cover;border-radius:9px}.pill{display:inline-block;background:#eee;border-radius:20px;padding:3px 7px;font-size:11px}.small{font-size:12px;color:#666}.danger{color:#b00020}.good{color:#087f23}
+</style><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Co-Founder AI">
+</head><body><div class=wrap>
+<div class=hero><h1>Business Co-Founder AI</h1><div>FINAL • Market Research • Competitors • Pricing • Ads • Profit • Inventory</div></div>
+<div class=nav><button onclick=research()>🔎 Research</button><button onclick=winner()>🏆 Score</button><button onclick=price()>💰 Price</button><button onclick=ad()>📢 Ads</button><button onclick=analyze()>🤖 AI</button><button onclick=health()>🔌 API</button></div>
+<div class=grid>
+<section class=card><h2>Market Research</h2><input id=q placeholder="Earrings / necklace / mangalsutra"><select id=pl><option>all</option><option>Meesho</option><option>Flipkart</option></select><button onclick=research()>Search</button><div id=r></div></section>
+<section class=card><h2>Competitor / Product</h2><input id=pid placeholder="Product ID (e.g. M001)"><input id=pname placeholder="or product name"><button onclick=competitor()>Find competitor</button><div id=cp></div></section>
+<section class=card><h2>Winning Product Score</h2><input id=rt type=number step=.1 placeholder="Rating"><input id=rv type=number placeholder="Reviews"><input id=sr type=number step=.1 placeholder="Seller rating"><input id=op type=number placeholder="Orders/day"><button onclick=winner()>Calculate</button><div id=w></div></section>
+<section class=card><h2>Smart Pricing</h2><input id=prs placeholder="299,249,199"><input id=co type=number placeholder="Product cost"><input id=fe type=number placeholder="Shipping + fees"><input id=pr type=number placeholder="Target profit"><button onclick=price()>Recommend</button><div id=p></div></section>
+<section class=card><h2>Ads + ROAS</h2><input id=sp type=number placeholder="Selling price"><input id=pc type=number placeholder="Product cost"><input id=af type=number placeholder="Shipping + fees"><input id=tp type=number placeholder="Target profit/order"><button onclick=ad()>Calculate</button><div id=a></div></section>
+<section class=card><h2>AI Business Analysis</h2><button onclick=analyze()>Analyze current research</button><div id=ai></div></section>
+<section class=card><h2>Inventory / Profit Rules</h2><input id=stock type=number placeholder="Current stock"><input id=od type=number placeholder="Orders/day"><button onclick=inventory()>Check stock</button><div id=inv></div></section>
+<section class=card><h2>Data Connectors</h2><div class=small>Live marketplace data तभी दिखेगा जब authorized/approved API source connect होगा.</div><button onclick=connectors()>Check connectors</button><div id=cn></div></section>
+<section class=card><h2>Saved Data</h2><button onclick=saveSearch()>Save current research</button><button onclick=downloadData()>Export saved data</button><div id=save></div></section>
+</div></div>
+<script>
+const API=localStorage.getItem("BC_API_URL")||"http://localhost:3000";
+const post=async(p,d)=>fetch(API+p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)}).then(r=>r.json());
+const cards=ps=>ps.map(x=>`<div class=prod><img src="${x.image}" onerror="this.style.display='none'"><div><b>${x.name}</b><br>₹${x.price} · ⭐${x.rating} · ${x.reviews} reviews<br><span class=pill>Score ${x.winningScore}</span> <span class=pill>${x.demandLevel}</span><br><span class=small>${x.seller} · Seller ⭐${x.sellerRating}</span></div></div>`).join("");
+async function research(){let x=await post("/api/research",{query:q.value,platform:pl.value});r.innerHTML=`<div class=out>Top: ${x.insights.top?.name||"-"}\nAvg price: ₹${x.insights.avgPrice}\nDemand signal: ${x.insights.demand}</div>${cards(x.products)}`}
+async function competitor(){let x=await post("/api/competitor",{productId:pid.value,name:pname.value});cp.innerHTML=x.error?x.error:`<div class=out>${x.product.name}\n₹${x.product.price} · ⭐${x.product.rating} · ${x.product.reviews} reviews\nWinning score: ${x.product.winningScore}</div>${cards(x.similar)}`}
+async function winner(){let x=await post("/api/winner-score",{rating:rt.value,reviews:rv.value,sellerRating:sr.value,ordersPerDay:op.value});w.innerHTML=`<div class=out>Score: ${x.score}/100\nDemand: ${x.demand}\n${x.verdict}</div>`}
+async function price(){let x=await post("/api/price",{competitorPrices:prs.value.split(","),cost:co.value,fees:fe.value,profit:pr.value});p.innerHTML=`<div class=out>Average: ₹${x.avg}\nRange: ₹${x.min}–₹${x.max}\nMinimum profitable: ₹${x.minimumProfitablePrice}\nSuggested benchmark: ₹${x.suggestedPrice}</div>`}
+async function ad(){let x=await post("/api/ad-plan",{sellingPrice:sp.value,productCost:pc.value,fees:af.value,targetProfit:tp.value});a.innerHTML=`<div class=out>Contribution: ₹${x.contribution}\nMax ad spend/order: ₹${x.maxAdSpendPerOrder}\nBreak-even ROAS: ${x.breakEvenROAS||"-"}\nTest: ₹${x.testBudget}/day × ${x.days} days</div>`}
+async function analyze(){let x=await post("/api/research",{query:q.value,platform:pl.value}),y=await post("/api/analyze",{products:x.products});ai.innerHTML=`<div class=out>Top: ${y.top?.name||"-"}\nAvg price: ₹${y.averagePrice}\n\n${y.actions.map(a=>"• "+a).join("\n")}</div>`}
+async function inventory(){let s=+stock.value||0,o=+od.value||0,d=o?Math.floor(s/o):999;inv.innerHTML=`<div class=out>Estimated stock cover: ${d} days\n${d<=3?"⚠️ Low stock — restock planning needed.":"✓ Stock cover looks adequate."}</div>`}
+async function health(){let x=await fetch(API+"/api/health").then(r=>r.json());alert(JSON.stringify(x,null,2))}
+async function connectors(){let x=await post("/api/connectors",{});cn.innerHTML=`<div class=out>${JSON.stringify(x,null,2)}</div>`}
+function saveSearch(){let old=JSON.parse(localStorage.getItem("BC_SAVED")||"[]");old.push({query:q.value,platform:pl.value,time:new Date().toLocaleString()});localStorage.setItem("BC_SAVED",JSON.stringify(old));showSaved()}
+function showSaved(){let x=JSON.parse(localStorage.getItem("BC_SAVED")||"[]");save.innerHTML=x.length?x.slice(-10).map(v=>`• ${v.query||"All"} — ${v.platform} — ${v.time}`).join("<br>"):"No saved research"}
+function downloadData(){let x=localStorage.getItem("BC_SAVED")||"[]",b=new Blob([x],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="business-cofounder-saved.json";a.click()}
+showSaved();
+</script><script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body></html>
